@@ -3,6 +3,6 @@ phases:
   install:
     commands:
       - echo "Install something"
-  test:
+  build:
     commands:
       - echo "Test something"
