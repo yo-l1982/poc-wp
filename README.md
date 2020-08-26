@@ -9,7 +9,7 @@ If you already have a access token for previous AWS codpipelines you can reuse i
 In order to get cloudformation to set up the webhook between the pipeline and git you will need an accesss key from the github and provide it to cloudformation.  
 
 #### Create git access token
-From [https://docs.aws.amazon.com/codepipeline/latest/userguide/GitHub-create-personal-token-CLI.html](AWS documentation)
+From [AWS documentation](https://docs.aws.amazon.com/codepipeline/latest/userguide/GitHub-create-personal-token-CLI.html)
   
 * In Github click you profile picture and chose `Settings`.
 * Select `Developer settings` in the meny and then `Personal access tokens`.
