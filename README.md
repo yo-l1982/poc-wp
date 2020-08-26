@@ -4,7 +4,7 @@ Wordpress in docker POC with IAC and CI/CD pipeline using AWS.
 ## Local dev environment
 
 ## CI/CD Pipeline
-### Git web hooks
+### Github web hooks
 If you already have a access token for previous AWS codpipelines you can reuse it in this pipeline and you can skip the below steps.  
 In order to get cloudformation to set up the webhook between the pipeline and git you will need an accesss key from the github and provide it to cloudformation.  
 
@@ -28,5 +28,11 @@ The key name and secret name should match the [Dynamic reference](https://docs.a
 * Add the generated token with the key name `token`, then choose `Next`.
 * Give the `Secret name` `CodepipelineGithubAccessToken`, leave a tag `Billing` with value `shared` for billing cost management and a description eg. `Git hub access token for Codepipelines`, then choose `Next`.
 * Choose `Next` to skip rotation.
-* Review and choose `store`to save the token.
+* Review and choose `Store`to save the token.
 
+### Cloudformation
+Create the codepipeline in cloudformation using the below command in your terminal in the repo root directory as working directory.  
+Validate your template before creating the stack and fix any errors.
+`aws cloudformation validate-template --template-body file://$PWD/cloudformation/pipeline/cfn-stack.yml`
+
+`aws cloudformation create-stack --stack-name poc-wp-codepipeline --template-body file://$PWD/cloudformation/pipeline/cfn-stack.yml --capabilities CAPABILITY_IAM`
