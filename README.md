@@ -20,7 +20,8 @@ From [https://docs.aws.amazon.com/codepipeline/latest/userguide/GitHub-create-pe
 
 #### Add token to AWS Secrets Manager
 Place the github token in AWS Secrets manager.  
-The key name and secret name should match the [Dynamic reference](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/dynamic-references.html) string in `cloudformation/pipeline/cfn-stack.yaml` e.g. `{{resolve:secretsmanager:**CodepipelineGithubAccessToken**:SecretString:**token**}}`  
+The key name and secret name should match the [Dynamic reference](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/dynamic-references.html) string in  
+`cloudformation/pipeline/cfn-stack.yaml` e.g. {{resolve:secretsmanager:**CodepipelineGithubAccessToken**:SecretString:**token**}}  
 * Go to AWS Secrets Manager and select `Secrets` in the menu.
 * Select `Store new Secret`.
 * Choose `Other type of secrets`.
