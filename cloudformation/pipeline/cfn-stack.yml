@@ -64,6 +64,7 @@ Resources:
                 Repo: !Ref GitHubRepo
                 Branch: !Ref GitHubBranch
                 OAuthToken: "{{resolve:secretsmanager:CodepipelineGithubAccessToken:SecretString:token}}"
+                PollForSourceChanges: false
               OutputArtifacts:
                 - 
                   Name: SourceOutput
