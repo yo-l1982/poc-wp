@@ -1,0 +1,85 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: A stack for the pipeline building the docker images and pushing to the ECS cluster.
+
+Parameters:
+  DesiredCapacity:
+    Type: Number
+    Default: '3'
+    Description: Number of EC2 instances to launch in your ECS cluster.
+  MaxSize:
+    Type: Number
+    Default: '6'
+    Description: Maximum number of EC2 instances that can be launched in your ECS cluster.
+  ECSAMI:
+    Description: AMI ID
+    Type: AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>
+    Default: /aws/service/ecs/optimized-ami/amazon-linux-2/recommended/image_id
+  InstanceType:
+    Description: EC2 instance type
+    Type: String
+    Default: c4.xlarge
+    AllowedValues: [t2.micro, t2.small, t2.medium, t2.large, m3.medium, m3.large,
+      m3.xlarge, m3.2xlarge, m4.large, m4.xlarge, m4.2xlarge, m4.4xlarge, m4.10xlarge,
+      c4.large, c4.xlarge, c4.2xlarge, c4.4xlarge, c4.8xlarge, c3.large, c3.xlarge,
+      c3.2xlarge, c3.4xlarge, c3.8xlarge, r3.large, r3.xlarge, r3.2xlarge, r3.4xlarge,
+      r3.8xlarge, i2.xlarge, i2.2xlarge, i2.4xlarge, i2.8xlarge]
+    ConstraintDescription: Please choose a valid instance type.
+
+Resources:
+CodePipeline::Pipeline: 
+  Type: AWS::CodePipeline::Pipeline 
+  Properties: 
+    RoleArn:
+      Ref: CodePipelineServiceRole 
+    Stages: 
+      - 
+        Name: Source 
+        Actions: 
+          - 
+            Name: SourceAction
+            ActionTypeId: 
+              Category: Source 
+              Owner: ThirdParty 
+              Version: 1 
+              Provider: GitHub 
+            Configuration: 
+              Owner: yo-l1982
+              Repo: poc-wp
+              Branch: master
+              OAuthToken: {{resolve:secretsmanager:CodepipelineGithubAccessToken:SecretString:token}}
+            OutputArtifacts: 
+              - 
+                Name: SourceOutput 
+            RunOrder: 1 
+    ArtifactStore: 
+      Type: S3 
+      Location:
+        Ref: ArtifactStoreS3Location 
+      EncryptionKey:
+        Id: arn:aws:kms:useast-1:ACCOUNT-ID:key/KEY-ID
+        Type: KMS
+    DisableInboundStageTransitions: 
+      - 
+        StageName: Release 
+        Reason: "Disabling the transition until integration tests are completed"
+    Tags:
+      - Key: Project
+        Value: ProjectA
+      - Key: IsContainerBased
+        Value: 'true'
+
+  CodePipelineWebhook:
+    Type: AWS::CodePipeline::Webhook
+    Properties:
+      Authentication: GITHUB_HMAC
+      AuthenticationConfiguration:
+        SecretToken: {{resolve:secretsmanager:CodepipelineGithubAccessToken:SecretString:token}}
+      Filters:
+        - 
+          JsonPath: "$.ref"
+          MatchEquals: refs/heads/master
+      TargetPipeline: !Ref AppPipeline
+      TargetAction: SourceAction
+      Name: AppPipelineWebhook
+      TargetPipelineVersion: !GetAtt AppPipeline.Version
+      RegisterWithThirdParty: true
